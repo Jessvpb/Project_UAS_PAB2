@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "938794883536",
+    "project_id": "projectpab-58416",
+    "storage_bucket": "projectpab-58416.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:938794883536:android:50fbf14d89c29dae2fc1d5",
+        "android_client_info": {
+          "package_name": "com.example.akiflash"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyXD1nE5wZmFdVpVksHlL4cRY9BYzVwtk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
