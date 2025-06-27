@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:akiflash/view_models/auth_view_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:akiflash/providers/theme_provider.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -47,9 +48,10 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: themeProvider.isDarkMode ? Colors.grey[900] : const Color(0xFFF8FAFF),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -59,7 +61,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
             floating: false,
             pinned: true,
             elevation: 0,
-            backgroundColor: const Color(0xFF1976D2),
+            backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : const Color(0xFF1976D2),
             leading: Container(
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -78,8 +80,8 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0xFF1976D2),
-                      const Color(0xFF42A5F5),
+                      themeProvider.isDarkMode ? Colors.grey[800]! : const Color(0xFF1976D2),
+                      themeProvider.isDarkMode ? Colors.grey[700]! : const Color(0xFF42A5F5),
                     ],
                   ),
                 ),
@@ -139,7 +141,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                 return Transform.translate(
                   offset: Offset(0, 50 * (1 - _slideAnimation.value)),
                   child: Opacity(
-                    opacity: _slideAnimation.value,
+                    opacity: _slideAnimation.value.clamp(0.0, 1.0),
                     child: FutureBuilder<List<Map<String, dynamic>>>(
                       future: authViewModel.getCartItems(),
                       builder: (context, snapshot) {
@@ -165,14 +167,15 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
   }
 
   Widget _buildLoadingState() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     return Container(
       height: 400,
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: Color(0xFF1976D2)),
-            SizedBox(height: 16),
+            CircularProgressIndicator(color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1976D2)),
+            const SizedBox(height: 16),
             Text(
               'Loading checkout...',
               style: TextStyle(
@@ -187,6 +190,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
   }
 
   Widget _buildEmptyCart() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     return Container(
       height: 400,
       child: Center(
@@ -196,7 +200,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF1976D2).withOpacity(0.1),
+                color: (themeProvider.isDarkMode ? Colors.grey[800] : const Color(0xFF1976D2))!.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Icon(
@@ -229,6 +233,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
   }
 
   Widget _buildCheckoutContent(List<Map<String, dynamic>> cartItems, AuthViewModel authViewModel) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     return Form(
       key: _formKey,
       child: Column(
@@ -238,11 +243,11 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
             margin: const EdgeInsets.all(20),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1976D2).withOpacity(0.08),
+                  color: (themeProvider.isDarkMode ? Colors.black : const Color(0xFF1976D2)).withOpacity(0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -256,22 +261,22 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1976D2).withOpacity(0.1),
+                        color: (themeProvider.isDarkMode ? Colors.grey[700] : const Color(0xFF1976D2))?.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.shopping_bag_outlined,
-                        color: Color(0xFF1976D2),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1976D2),
                         size: 20,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
+                    Text(
                       'Order Summary',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A1A),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
                       ),
                     ),
                   ],
@@ -286,20 +291,20 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Total Amount',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A1A1A),
+                            color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
                           ),
                         ),
                         Text(
                           'Rp ${total.toStringAsFixed(0)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1976D2),
+                            color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1976D2),
                           ),
                         ),
                       ],
@@ -315,11 +320,11 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1976D2).withOpacity(0.08),
+                  color: (themeProvider.isDarkMode ? Colors.black : const Color(0xFF1976D2)).withOpacity(0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -333,22 +338,22 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1976D2).withOpacity(0.1),
+                        color: (themeProvider.isDarkMode ? Colors.grey[700] : const Color(0xFF1976D2))?.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.local_shipping_outlined,
-                        color: Color(0xFF1976D2),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1976D2),
                         size: 20,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
+                    Text(
                       'Delivery Information',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A1A),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
                       ),
                     ),
                   ],
@@ -359,19 +364,22 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                 TextFormField(
                   controller: _addressController,
                   maxLines: 3,
+                  style: TextStyle(color: themeProvider.isDarkMode ? Colors.white : Colors.black),
                   decoration: InputDecoration(
                     labelText: 'Delivery Address',
+                    labelStyle: TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
                     hintText: 'Enter your complete delivery address...',
+                    hintStyle: TextStyle(color: themeProvider.isDarkMode ? Colors.white54 : Colors.grey),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1976D2).withOpacity(0.1),
+                        color: (themeProvider.isDarkMode ? Colors.grey[700] : const Color(0xFF1976D2))?.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.location_on_outlined,
-                        color: Color(0xFF1976D2),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1976D2),
                         size: 20,
                       ),
                     ),
@@ -383,8 +391,12 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                       borderRadius: BorderRadius.circular(15),
                       borderSide: const BorderSide(color: Color(0xFF1976D2), width: 2),
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey[300]!),
+                    ),
                     filled: true,
-                    fillColor: Colors.grey[50],
+                    fillColor: themeProvider.isDarkMode ? Colors.grey[850] : Colors.grey[50],
                   ),
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Delivery address is required' : null,
@@ -396,19 +408,22 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  style: TextStyle(color: themeProvider.isDarkMode ? Colors.white : Colors.black),
                   decoration: InputDecoration(
                     labelText: 'Phone Number',
+                    labelStyle: TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
                     hintText: 'Enter your phone number...',
+                    hintStyle: TextStyle(color: themeProvider.isDarkMode ? Colors.white54 : Colors.grey),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1976D2).withOpacity(0.1),
+                        color: (themeProvider.isDarkMode ? Colors.grey[700] : const Color(0xFF1976D2))?.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.phone_outlined,
-                        color: Color(0xFF1976D2),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1976D2),
                         size: 20,
                       ),
                     ),
@@ -420,8 +435,12 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                       borderRadius: BorderRadius.circular(15),
                       borderSide: const BorderSide(color: Color(0xFF1976D2), width: 2),
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey[300]!),
+                    ),
                     filled: true,
-                    fillColor: Colors.grey[50],
+                    fillColor: themeProvider.isDarkMode ? Colors.grey[850] : Colors.grey[50],
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -444,11 +463,11 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF1976D2).withOpacity(0.08),
+                  color: (themeProvider.isDarkMode ? Colors.black : const Color(0xFF1976D2)).withOpacity(0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -462,22 +481,22 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1976D2).withOpacity(0.1),
+                        color: (themeProvider.isDarkMode ? Colors.grey[700] : const Color(0xFF1976D2))?.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.payment_outlined,
-                        color: Color(0xFF1976D2),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1976D2),
                         size: 20,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
+                    Text(
                       'Payment Method',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A1A),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
                       ),
                     ),
                   ],
@@ -492,19 +511,22 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                 TextFormField(
                   controller: _notesController,
                   maxLines: 2,
+                  style: TextStyle(color: themeProvider.isDarkMode ? Colors.white : Colors.black),
                   decoration: InputDecoration(
                     labelText: 'Order Notes (Optional)',
+                    labelStyle: TextStyle(color: themeProvider.isDarkMode ? Colors.white70 : Colors.black54),
                     hintText: 'Any special instructions...',
+                    hintStyle: TextStyle(color: themeProvider.isDarkMode ? Colors.white54 : Colors.grey),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1976D2).withOpacity(0.1),
+                        color: (themeProvider.isDarkMode ? Colors.grey[700] : const Color(0xFF1976D2))?.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.note_outlined,
-                        color: Color(0xFF1976D2),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1976D2),
                         size: 20,
                       ),
                     ),
@@ -516,8 +538,12 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                       borderRadius: BorderRadius.circular(15),
                       borderSide: const BorderSide(color: Color(0xFF1976D2), width: 2),
                     ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey[300]!),
+                    ),
                     filled: true,
-                    fillColor: Colors.grey[50],
+                    fillColor: themeProvider.isDarkMode ? Colors.grey[850] : Colors.grey[50],
                   ),
                 ),
               ],
@@ -569,6 +595,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
   }
 
   Widget _buildOrderItem(Map<String, dynamic> item) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance
           .collection('aki_products')
@@ -584,9 +611,9 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey[50],
+            color: themeProvider.isDarkMode ? Colors.grey[850] : Colors.grey[50],
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.grey[200]!),
+            border: Border.all(color: themeProvider.isDarkMode ? Colors.grey[700]! : Colors.grey[200]!),
           ),
           child: Row(
             children: [
@@ -618,10 +645,10 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                   children: [
                     Text(
                       product.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: Color(0xFF1A1A1A),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -639,10 +666,10 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
               ),
               Text(
                 'Rp ${(product.price * item['quantity']).toStringAsFixed(0)}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
-                  color: Color(0xFF1976D2),
+                  color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1976D2),
                 ),
               ),
             ],
@@ -653,13 +680,14 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
   }
 
   Widget _buildOrderItemSkeleton() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: themeProvider.isDarkMode ? Colors.grey[850] : Colors.grey[50],
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: themeProvider.isDarkMode ? Colors.grey[700]! : Colors.grey[200]!),
       ),
       child: Row(
         children: [
@@ -710,6 +738,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
   }
 
   List<Widget> _buildPaymentOptions() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final paymentMethods = [
       {
         'value': 'Cash on Delivery',
@@ -744,7 +773,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
           borderRadius: BorderRadius.circular(15),
           color: _paymentMethod == method['value'] 
               ? const Color(0xFF1976D2).withOpacity(0.05)
-              : Colors.white,
+              : themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
         ),
         child: RadioListTile<String>(
           value: method['value'] as String,
@@ -771,7 +800,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                   fontWeight: FontWeight.w600,
                   color: _paymentMethod == method['value'] 
                       ? const Color(0xFF1976D2) 
-                      : const Color(0xFF1A1A1A),
+                      : themeProvider.isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
                 ),
               ),
             ],
@@ -807,6 +836,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
   }
 
   Future<void> _placeOrder(AuthViewModel authViewModel) async {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isProcessing = true;
@@ -825,6 +855,7 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
+            backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
@@ -844,11 +875,12 @@ class _OrderScreenState extends State<OrderScreen> with TickerProviderStateMixin
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Order Placed Successfully!',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: themeProvider.isDarkMode ? Colors.white : Colors.black,
                   ),
                   textAlign: TextAlign.center,
                 ),

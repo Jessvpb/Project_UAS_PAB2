@@ -7,6 +7,8 @@ import 'package:akiflash/views/detail_screen.dart';
 import 'package:akiflash/views/search_screen.dart';
 import 'package:akiflash/views/category_screen.dart';
 import 'package:akiflash/views/cart_screen.dart';
+import 'package:akiflash/providers/theme_provider.dart';
+import 'package:akiflash/widgets/theme_toggle_button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -63,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         bool isAdmin = snapshot.data ?? false;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFF),
+          backgroundColor: Theme.of(context).colorScheme.background,
           body: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
@@ -212,6 +214,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ).then((_) => _updateCartCount());
                     },
                   ),
+                  const SizedBox(width: 12),
+                  const ThemeToggleButton(),
                   if (isAdmin) ...[
                     const SizedBox(width: 12),
                     _buildHeaderIcon(
@@ -305,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
@@ -341,6 +345,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildCategoriesSection() {
     return Column(
       children: [
+        _buildSectionHeader('Popular Categories', 'View all'),
         Container(
           height: 140,
           margin: const EdgeInsets.only(bottom: 20),
@@ -377,10 +382,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           GestureDetector(
@@ -437,15 +442,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
               child: Icon(
                 icon,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 size: 32,
               ),
             ),
             const SizedBox(height: 12),
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.surface,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -482,7 +487,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
@@ -574,7 +579,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                   child: Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: Theme.of(context).colorScheme.surface,
                                       borderRadius: BorderRadius.circular(15),
                                       boxShadow: [
                                         BoxShadow(
@@ -606,10 +611,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               children: [
                                 Text(
                                   product.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
-                                    color: Color(0xFF1A1A1A),
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -692,7 +697,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         itemBuilder: (context, index) {
           return Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(

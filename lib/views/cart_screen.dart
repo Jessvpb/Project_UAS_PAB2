@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:akiflash/view_models/auth_view_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:akiflash/views/order_screen.dart';
+import 'package:akiflash/providers/theme_provider.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -40,7 +41,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     final authViewModel = Provider.of<AuthViewModel>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -63,61 +64,58 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               ),
             ),
             flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      const Color(0xFF1976D2),
-                      const Color(0xFF42A5F5),
-                    ],
-                  ),
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Row(
+              background: Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      gradient: themeProvider.getPrimaryGradient(context),
+                    ),
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: const Icon(
-                                Icons.shopping_cart_rounded,
-                                color: Colors.white,
-                                size: 24,
-                              ),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: const Icon(
+                                    Icons.shopping_cart_rounded,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                const Text(
+                                  'Shopping Cart',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 16),
-                            const Text(
-                              'Shopping Cart',
+                            const SizedBox(height: 8),
+                            Text(
+                              'Review your items before checkout',
                               style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 16,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Review your items before checkout',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           ),
@@ -158,16 +156,16 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
   Widget _buildLoadingState() {
     return Container(
       height: 400,
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(color: Color(0xFF1976D2)),
-            SizedBox(height: 16),
+            CircularProgressIndicator(color: const Color(0xFF1976D2)),
+            const SizedBox(height: 16),
             Text(
               'Loading your cart...',
               style: TextStyle(
-                color: Colors.grey,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
                 fontSize: 16,
               ),
             ),
@@ -202,7 +200,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
             const SizedBox(height: 8),
@@ -210,7 +208,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               'Add some products to get started',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey[500],
+                color: Theme.of(context).textTheme.bodyMedium?.color,
               ),
             ),
             const SizedBox(height: 24),
@@ -286,7 +284,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
           margin: const EdgeInsets.all(20),
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
@@ -301,12 +299,12 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Total Amount',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A1A),
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
                   FutureBuilder<double>(
@@ -367,7 +365,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -411,10 +409,10 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
               children: [
                 Text(
                   product.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Color(0xFF1A1A1A),
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -423,7 +421,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
                 Text(
                   product.type,
                   style: TextStyle(
-                    color: Colors.grey[600],
+                    color: Theme.of(context).textTheme.bodyMedium?.color,
                     fontSize: 14,
                   ),
                 ),
@@ -545,7 +543,7 @@ class _CartScreenState extends State<CartScreen> with TickerProviderStateMixin {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(

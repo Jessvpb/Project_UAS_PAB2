@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:akiflash/view_models/auth_view_model.dart';
 import 'package:akiflash/models/aki_product.dart';
 import 'package:akiflash/views/detail_screen.dart';
+import 'package:akiflash/providers/theme_provider.dart';
 
 class CategoryScreen extends StatefulWidget {
   final String category;
@@ -42,9 +43,10 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: themeProvider.isDarkMode ? Colors.grey[900] : const Color(0xFFF8FAFF),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -54,7 +56,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
             floating: false,
             pinned: true,
             elevation: 0,
-            backgroundColor: const Color(0xFF1976D2),
+            backgroundColor: themeProvider.isDarkMode ? Colors.grey[800] : const Color(0xFF1976D2),
             leading: Container(
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -86,8 +88,8 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0xFF1976D2),
-                      const Color(0xFF42A5F5),
+                      themeProvider.isDarkMode ? Colors.grey[800]! : const Color(0xFF1976D2),
+                      themeProvider.isDarkMode ? Colors.grey[700]! : const Color(0xFF42A5F5),
                     ],
                   ),
                 ),
@@ -107,7 +109,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: Icon(
-                                widget.category == 'Aki Mobil' 
+                                widget.category == 'Aki Mobil'
                                     ? Icons.directions_car_rounded
                                     : Icons.motorcycle_rounded,
                                 color: Colors.white,
@@ -219,11 +221,12 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
   }
 
   Widget _buildProductCard(AkiProduct product, AuthViewModel authViewModel) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     return FutureBuilder<bool>(
       future: authViewModel.isFavorite(product.id),
       builder: (context, favoriteSnapshot) {
         bool isFavorite = favoriteSnapshot.data ?? false;
-        
+
         return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -235,7 +238,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
           },
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
@@ -259,7 +262,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(25),
                           ),
-                          color: Colors.grey[50],
+                          color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[50],
                         ),
                         child: ClipRRect(
                           borderRadius: const BorderRadius.vertical(
@@ -280,7 +283,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                           ),
                         ),
                       ),
-                      
+
                       // Discount Badge
                       if (product.discount != null)
                         Positioned(
@@ -314,7 +317,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                             ),
                           ),
                         ),
-                      
+
                       // Favorite Button
                       Positioned(
                         top: 12,
@@ -327,7 +330,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.white,
                               borderRadius: BorderRadius.circular(15),
                               boxShadow: [
                                 BoxShadow(
@@ -348,7 +351,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                     ],
                   ),
                 ),
-                
+
                 // Product Info
                 Expanded(
                   flex: 2,
@@ -359,10 +362,10 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                       children: [
                         Text(
                           product.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
-                            color: Color(0xFF1A1A1A),
+                            color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -383,18 +386,21 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                             Expanded(
                               child: Text(
                                 'Rp ${product.price.toStringAsFixed(0)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
-                                  color: Color(0xFF1976D2),
+                                  color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1976D2),
                                 ),
                               ),
                             ),
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFF1976D2), Color(0xFF42A5F5)],
+                                gradient: LinearGradient(
+                                  colors: [
+                                    themeProvider.isDarkMode ? Colors.grey[700]! : const Color(0xFF1976D2),
+                                    themeProvider.isDarkMode ? Colors.grey[600]! : const Color(0xFF42A5F5)
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
@@ -426,6 +432,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
   }
 
   Widget _buildLoadingGrid() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     return Padding(
       padding: const EdgeInsets.all(20),
       child: GridView.builder(
@@ -441,7 +448,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
         itemBuilder: (context, index) {
           return Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
@@ -457,7 +464,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                   flex: 3,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[200],
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(25),
                       ),
@@ -475,7 +482,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                           height: 16,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Colors.grey[300],
+                            color: themeProvider.isDarkMode ? Colors.grey[600] : Colors.grey[300],
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -484,7 +491,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                           height: 12,
                           width: 80,
                           decoration: BoxDecoration(
-                            color: Colors.grey[300],
+                            color: themeProvider.isDarkMode ? Colors.grey[600] : Colors.grey[300],
                             borderRadius: BorderRadius.circular(6),
                           ),
                         ),
@@ -496,7 +503,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                               height: 16,
                               width: 60,
                               decoration: BoxDecoration(
-                                color: Colors.grey[300],
+                                color: themeProvider.isDarkMode ? Colors.grey[600] : Colors.grey[300],
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
@@ -504,7 +511,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: Colors.grey[300],
+                                color: themeProvider.isDarkMode ? Colors.grey[600] : Colors.grey[300],
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
@@ -523,6 +530,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
   }
 
   Widget _buildEmptyState() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     return Container(
       height: 400,
       child: Center(
@@ -565,14 +573,15 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
   }
 
   void _showSortOptions() {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+          decoration: BoxDecoration(
+            color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -597,7 +606,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.sort_by_alpha_rounded, color: Color(0xFF1976D2)),
+                leading: Icon(Icons.sort_by_alpha_rounded, color: const Color(0xFF1976D2)),
                 title: const Text('Name'),
                 trailing: _sortBy == 'name' ? const Icon(Icons.check, color: Color(0xFF1976D2)) : null,
                 onTap: () {
@@ -608,7 +617,7 @@ class _CategoryScreenState extends State<CategoryScreen> with TickerProviderStat
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.attach_money_rounded, color: Color(0xFF1976D2)),
+                leading: Icon(Icons.attach_money_rounded, color: const Color(0xFF1976D2)),
                 title: const Text('Price'),
                 trailing: _sortBy == 'price' ? const Icon(Icons.check, color: Color(0xFF1976D2)) : null,
                 onTap: () {

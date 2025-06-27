@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:akiflash/view_models/auth_view_model.dart';
+import 'package:akiflash/providers/theme_provider.dart';
+import 'package:akiflash/widgets/theme_toggle_button.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -53,7 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     final authViewModel = Provider.of<AuthViewModel>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: FutureBuilder<Map<String, dynamic>?>(
         future: authViewModel.getUserData(),
         builder: (context, snapshot) {
@@ -82,66 +84,63 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 elevation: 0,
                 backgroundColor: const Color(0xFF1976D2),
                 flexibleSpace: FlexibleSpaceBar(
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          const Color(0xFF1976D2),
-                          const Color(0xFF42A5F5),
-                        ],
-                      ),
-                    ),
-                    child: SafeArea(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 20),
-                          AnimatedBuilder(
-                            animation: _slideAnimation,
-                            builder: (context, child) {
-                              return Transform.scale(
-                                scale: _slideAnimation.value,
-                                child: Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(50),
-                                    border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
-                                      width: 3,
+                  background: Consumer<ThemeProvider>(
+                    builder: (context, themeProvider, child) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          gradient: themeProvider.getPrimaryGradient(context),
+                        ),
+                        child: SafeArea(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(height: 20),
+                              AnimatedBuilder(
+                                animation: _slideAnimation,
+                                builder: (context, child) {
+                                  return Transform.scale(
+                                    scale: _slideAnimation.value,
+                                    child: Container(
+                                      width: 100,
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(50),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.3),
+                                          width: 3,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.person_rounded,
+                                        size: 50,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.person_rounded,
-                                    size: 50,
-                                    color: Colors.white,
-                                  ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                userData['name'] ?? 'User',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              );
-                            },
+                              ),
+                              Text(
+                                userData['email'] ?? '',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            userData['name'] ?? 'User',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            userData['email'] ?? '',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 actions: [
@@ -187,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                                 Container(
                                   padding: const EdgeInsets.all(24),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Theme.of(context).cardColor,
                                     borderRadius: BorderRadius.circular(25),
                                     boxShadow: [
                                       BoxShadow(
@@ -215,12 +214,12 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                                             ),
                                           ),
                                           const SizedBox(width: 16),
-                                          const Text(
+                                          Text(
                                             'Personal Information',
                                             style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
-                                              color: Color(0xFF1A1A1A),
+                                              color: Theme.of(context).textTheme.bodyLarge?.color,
                                             ),
                                           ),
                                         ],
@@ -466,6 +465,13 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         'onTap': () {},
       },
       {
+        'icon': Icons.palette_rounded,
+        'title': 'Theme',
+        'subtitle': 'Switch between light and dark mode',
+        'onTap': () {},
+        'trailing': const ThemeToggleButton(showLabel: false),
+      },
+      {
         'icon': Icons.logout_rounded,
         'title': 'Sign Out',
         'subtitle': 'Sign out from your account',
@@ -480,7 +486,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
@@ -506,10 +512,10 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
             ),
             title: Text(
               item['title'] as String,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
-                color: Color(0xFF1A1A1A),
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
             subtitle: Text(
@@ -519,7 +525,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                 fontSize: 14,
               ),
             ),
-            trailing: const Icon(
+            trailing: item.containsKey('trailing') ? item['trailing'] as Widget : const Icon(
               Icons.arrow_forward_ios_rounded,
               color: Color(0xFF1976D2),
               size: 16,

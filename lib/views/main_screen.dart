@@ -6,6 +6,7 @@ import 'package:akiflash/views/cart_screen.dart';
 import 'package:akiflash/views/order_history_screen.dart';
 import 'package:akiflash/views/favorite_screen.dart';
 import 'package:akiflash/views/profile_screen.dart';
+import 'package:akiflash/providers/theme_provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -22,6 +23,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final List<Widget> _pages = [
     const HomeScreen(),
     const FavoriteScreen(),
+    const CartScreen(),
     const OrderHistoryScreen(),
     const ProfileScreen(),
   ];
@@ -59,57 +61,70 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        children: _pages,
-      ),
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF1976D2).withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            selectedItemColor: const Color(0xFF1976D2),
-            unselectedItemColor: Colors.grey[400],
-            selectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-            ),
-            unselectedLabelStyle: const TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 11,
-            ),
-            items: [
-              _buildNavItem(Icons.home_rounded, Icons.home_outlined, 'Home', 0),
-              _buildNavItem(Icons.favorite_rounded, Icons.favorite_border_rounded, 'Wishlist', 1),
-              _buildNavItem(Icons.receipt_long_rounded, Icons.receipt_long_outlined, 'History', 3),
-              _buildNavItem(Icons.person_rounded, Icons.person_outline_rounded, 'Profile', 4),
-            ],
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final isDark = themeProvider.isDarkMode;
+
+        return Scaffold(
+          backgroundColor: themeProvider.getBackgroundColor(context),
+          body: PageView(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            children: _pages,
           ),
-        ),
-      ),
+          bottomNavigationBar: Container(
+            margin: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: themeProvider.getCardColor(context),
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: isDark
+                      ? Colors.black.withOpacity(0.3)
+                      : const Color(0xFF1976D2).withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                currentIndex: _selectedIndex,
+                onTap: _onItemTapped,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                selectedItemColor: const Color(0xFF42A5F5),
+                unselectedItemColor: isDark
+                    ? Colors.grey[400]
+                    : Colors.grey[500],
+                selectedLabelStyle: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                  color: isDark ? Colors.white : const Color(0xFF1976D2),
+                ),
+                unselectedLabelStyle: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 11,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+                items: [
+                  _buildNavItem(Icons.home_rounded, Icons.home_outlined, 'Home', 0, isDark),
+                  _buildNavItem(Icons.favorite_rounded, Icons.favorite_border_rounded, 'Wishlist', 1, isDark),
+                  _buildNavItem(Icons.shopping_bag_rounded, Icons.shopping_bag_outlined, 'Cart', 2, isDark),
+                  _buildNavItem(Icons.receipt_long_rounded, Icons.receipt_long_outlined, 'History', 3, isDark),
+                  _buildNavItem(Icons.person_rounded, Icons.person_outline_rounded, 'Profile', 4, isDark),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -118,20 +133,26 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     IconData inactiveIcon,
     String label,
     int index,
+    bool isDark,
   ) {
     return BottomNavigationBarItem(
       icon: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.all(_selectedIndex == index ? 8 : 4),
         decoration: BoxDecoration(
-          color: _selectedIndex == index 
-              ? const Color(0xFF1976D2).withOpacity(0.1)
+          color: _selectedIndex == index
+              ? (isDark
+                  ? const Color(0xFF42A5F5).withOpacity(0.2)
+                  : const Color(0xFF1976D2).withOpacity(0.1))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
           _selectedIndex == index ? activeIcon : inactiveIcon,
           size: 24,
+          color: _selectedIndex == index
+              ? const Color(0xFF42A5F5)
+              : (isDark ? Colors.grey[400] : Colors.grey[500]),
         ),
       ),
       label: label,

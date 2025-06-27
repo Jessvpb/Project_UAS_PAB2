@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:akiflash/view_models/auth_view_model.dart';
 import 'package:akiflash/models/aki_product.dart';
+import 'package:akiflash/providers/theme_provider.dart';
 
 class DetailScreen extends StatefulWidget {
   final AkiProduct product;
@@ -64,9 +65,10 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: CustomScrollView(
         controller: _scrollController,
         physics: const BouncingScrollPhysics(),
@@ -77,11 +79,11 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
             floating: false,
             pinned: true,
             elevation: 0,
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).cardColor,
             leading: Container(
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.9),
+                color: Theme.of(context).cardColor.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -92,7 +94,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                 ],
               ),
               child: IconButton(
-                icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1A1A1A)),
+                icon: Icon(Icons.arrow_back_rounded, color: Theme.of(context).colorScheme.secondary),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
@@ -100,7 +102,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
               Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Theme.of(context).cardColor.withOpacity(0.9),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
@@ -117,7 +119,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                     return IconButton(
                       icon: Icon(
                         isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                        color: isFavorite ? Colors.red : const Color(0xFF1A1A1A),
+                        color: isFavorite ? Colors.red : Theme.of(context).colorScheme.secondary,
                       ),
                       onPressed: () async {
                         await authViewModel.toggleFavorite(widget.product.id);
@@ -135,8 +137,8 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.white,
-                      Colors.grey[50]!,
+                      Theme.of(context).cardColor,
+                      Theme.of(context).colorScheme.background,
                     ],
                   ),
                 ),
@@ -224,9 +226,9 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                   child: Opacity(
                     opacity: _slideAnimation.value.clamp(0.0, 1.0),
                     child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(30),
                         ),
                       ),
@@ -245,10 +247,10 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                                     children: [
                                       Text(
                                         widget.product.name,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,
-                                          color: Color(0xFF1A1A1A),
+                                          color: Theme.of(context).colorScheme.secondary,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
@@ -362,7 +364,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -407,19 +409,19 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
+          Text(
             'Quantity',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           Row(
@@ -433,7 +435,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(15),
                   border: Border.all(color: const Color(0xFF1976D2).withOpacity(0.2)),
                 ),
@@ -488,19 +490,19 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                 color: const Color(0xFF1976D2).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                color: const Color(0xFF1976D2),
+              child: const Icon(
+                Icons.import_contacts,
+                color: Color(0xFF1976D2),
                 size: 20,
               ),
             ),
             const SizedBox(width: 12),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A1A),
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
           ],
@@ -510,7 +512,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.grey[50],
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: Colors.grey[200]!),
           ),
@@ -546,12 +548,12 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
               ),
             ),
             const SizedBox(width: 12),
-            const Text(
+            Text(
               'Reviews',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A1A),
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ),
           ],
@@ -569,7 +571,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
               return Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(15),
                   border: Border.all(color: Colors.grey[200]!),
                 ),
@@ -609,7 +611,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(15),
                     border: Border.all(color: Colors.grey[200]!),
                   ),
@@ -635,10 +637,10 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                           children: [
                             Text(
                               'Rating: ${review['rating']}/5',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
-                                color: Color(0xFF1A1A1A),
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                             ),
                             const SizedBox(height: 4),

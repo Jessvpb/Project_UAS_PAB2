@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:akiflash/models/aki_product.dart';
 import 'package:akiflash/views/detail_screen.dart';
+import 'package:akiflash/providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -10,7 +12,8 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMixin {
+class _SearchScreenState extends State<SearchScreen>
+    with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<AkiProduct> _searchResults = [];
@@ -60,19 +63,21 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     });
 
     try {
-      final snapshot = await _firestore
-          .collection('aki_products')
-          .where('name', isGreaterThanOrEqualTo: query)
-          .where('name', isLessThan: query + 'z')
-          .get();
-      
+      // Ambil semua produk dari Firestore
+      final snapshot = await _firestore.collection('aki_products').get();
+
       setState(() {
+        // Filter lokal dengan case-insensitive
         _searchResults = snapshot.docs
             .map((doc) => AkiProduct.fromFirestore(doc))
+            .where(
+              (product) =>
+                  product.name.toLowerCase().contains(query.toLowerCase()),
+            )
             .toList();
         _isSearching = false;
       });
-      
+
       _animationController.forward();
     } catch (e) {
       setState(() {
@@ -95,7 +100,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -103,14 +108,11 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    const Color(0xFF1976D2),
-                    const Color(0xFF42A5F5),
-                  ],
-                ),
+                // gradient: Consumer<ThemeProvider>(
+                //   builder: (context, themeProvider, child) {
+                //     return themeProvider.getPrimaryGradient(context);
+                //   },
+                // ),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(30),
@@ -125,21 +127,18 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
                             Icons.arrow_back_rounded,
-                            color: Colors.white,
                             size: 24,
                           ),
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Text(
+                      Text(
                         'Search Products',
                         style: TextStyle(
-                          color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -150,7 +149,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                   // Search Bar
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
@@ -208,10 +207,10 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
               child: _searchController.text.isEmpty
                   ? _buildRecentSearches()
                   : _isSearching
-                      ? _buildLoadingState()
-                      : _searchResults.isEmpty
-                          ? _buildNoResults()
-                          : _buildSearchResults(),
+                  ? _buildLoadingState()
+                  : _searchResults.isEmpty
+                  ? _buildNoResults()
+                  : _buildSearchResults(),
             ),
           ],
         ),
@@ -225,12 +224,12 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Recent Searches',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
+              color: Theme.of(context).colorScheme.onBackground,
             ),
           ),
           const SizedBox(height: 16),
@@ -249,7 +248,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: const Color(0xFF1976D2).withOpacity(0.2),
@@ -274,7 +273,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                       Text(
                         search,
                         style: TextStyle(
-                          color: Colors.grey[700],
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -285,12 +284,12 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
             }).toList(),
           ),
           const SizedBox(height: 32),
-          const Text(
+          Text(
             'Popular Categories',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
+              color: Theme.of(context).colorScheme.onBackground,
             ),
           ),
           const SizedBox(height: 16),
@@ -302,7 +301,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
 
   Widget _buildCategoryChips() {
     final categories = ['Aki Mobil', 'Aki Motor', 'Amaron', 'GS Astra'];
-    
+
     return Wrap(
       spacing: 12,
       runSpacing: 12,
@@ -328,8 +327,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
             ),
             child: Text(
               category,
-              style: const TextStyle(
-                color: Color(0xFF1976D2),
+              style: TextStyle(
+                color: Theme.of(context).primaryColor,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -340,20 +339,15 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   }
 
   Widget _buildLoadingState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
-            color: Color(0xFF1976D2),
-          ),
-          SizedBox(height: 16),
+          CircularProgressIndicator(color: Theme.of(context).primaryColor),
+          const SizedBox(height: 16),
           Text(
             'Searching...',
-            style: TextStyle(
-              color: Colors.grey,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: Theme.of(context).hintColor, fontSize: 16),
           ),
         ],
       ),
@@ -365,27 +359,20 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search_off_rounded,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.search_off_rounded, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             'No products found',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[600],
+              color: Theme.of(context).hintColor,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Try searching with different keywords',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
+            style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor),
           ),
         ],
       ),
@@ -411,7 +398,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -435,8 +422,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                           child: Image.network(
                             product.imageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Icon(
+                            errorBuilder: (context, error, stackTrace) => Icon(
                               Icons.battery_unknown_rounded,
                               color: Colors.grey[400],
                               size: 30,
@@ -446,10 +432,10 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                       ),
                       title: Text(
                         product.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: Color(0xFF1A1A1A),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       subtitle: Column(
@@ -468,10 +454,10 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                             children: [
                               Text(
                                 'Rp ${product.price.toStringAsFixed(0)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
-                                  color: Color(0xFF1976D2),
+                                  color: Theme.of(context).primaryColor,
                                 ),
                               ),
                               if (product.discount != null) ...[
@@ -505,9 +491,9 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                           color: const Color(0xFF1976D2).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_forward_ios_rounded,
-                          color: Color(0xFF1976D2),
+                          color: Theme.of(context).primaryColor,
                           size: 16,
                         ),
                       ),
@@ -516,7 +502,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DetailScreen(product: product),
+                            builder: (context) =>
+                                DetailScreen(product: product),
                           ),
                         );
                       },

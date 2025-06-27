@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:akiflash/view_models/auth_view_model.dart';
 import 'package:akiflash/models/aki_product.dart';
 import 'package:akiflash/views/detail_screen.dart';
+import 'package:akiflash/providers/theme_provider.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});
@@ -40,14 +41,15 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return FutureBuilder<User?>(
       future: Future.value(authViewModel.getCurrentUser()),
       builder: (context, userSnapshot) {
         if (userSnapshot.connectionState == ConnectionState.waiting || !userSnapshot.hasData) {
-          return const Scaffold(
-            backgroundColor: Color(0xFFF8FAFF),
-            body: Center(
+          return Scaffold(
+            backgroundColor: themeProvider.isDarkMode ? const Color(0xFF303030) : const Color(0xFFF8FAFF),
+            body: const Center(
               child: CircularProgressIndicator(color: Color(0xFF1976D2)),
             ),
           );
@@ -55,7 +57,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
         final user = userSnapshot.data!;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFF),
+          backgroundColor: themeProvider.isDarkMode ? const Color(0xFF303030) : const Color(0xFFF8FAFF),
           body: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
@@ -93,9 +95,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
                                     color: Colors.white.withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(15),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.favorite_rounded,
-                                    color: Colors.white,
+                                    color: themeProvider.isDarkMode ? Colors.white : Colors.white,
                                     size: 24,
                                   ),
                                 ),
@@ -135,7 +137,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return SliverToBoxAdapter(child: _buildLoadingGrid());
+                    return SliverToBoxAdapter(child: _buildLoadingGrid(themeProvider));
                   }
                   if (snapshot.hasError || !snapshot.hasData) {
                     return const SliverToBoxAdapter(
@@ -153,7 +155,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
                       .toList();
                   
                   if (favoriteIds.isEmpty) {
-                    return SliverToBoxAdapter(child: _buildEmptyState());
+                    return SliverToBoxAdapter(child: _buildEmptyState(themeProvider));
                   }
 
                   return StreamBuilder<QuerySnapshot>(
@@ -163,7 +165,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
                         .snapshots(),
                     builder: (context, productSnapshot) {
                       if (productSnapshot.connectionState == ConnectionState.waiting) {
-                        return SliverToBoxAdapter(child: _buildLoadingGrid());
+                        return SliverToBoxAdapter(child: _buildLoadingGrid(themeProvider));
                       }
                       if (productSnapshot.hasError || !productSnapshot.hasData) {
                         return const SliverToBoxAdapter(
@@ -203,7 +205,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
                                         offset: Offset(0, 50 * (1 - value)),
                                         child: Opacity(
                                           opacity: value.clamp(0.0, 1.0),
-                                          child: _buildFavoriteCard(product, authViewModel),
+                                          child: _buildFavoriteCard(product, authViewModel, themeProvider),
                                         ),
                                       );
                                     },
@@ -230,7 +232,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildFavoriteCard(AkiProduct product, AuthViewModel authViewModel) {
+  Widget _buildFavoriteCard(AkiProduct product, AuthViewModel authViewModel, ThemeProvider themeProvider) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -242,7 +244,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: themeProvider.isDarkMode ? const Color(0xFF424242) : Colors.white,
           borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
@@ -266,7 +268,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(25),
                       ),
-                      color: Colors.grey[50],
+                      color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.grey[50],
                     ),
                     child: ClipRRect(
                       borderRadius: const BorderRadius.vertical(
@@ -375,10 +377,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
                   children: [
                     Text(
                       product.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
-                        color: Color(0xFF1A1A1A),
+                        color: themeProvider.isDarkMode ? Colors.white : const Color(0xFF1A1A1A),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -454,7 +456,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildLoadingGrid() {
+  Widget _buildLoadingGrid(ThemeProvider themeProvider) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: GridView.builder(
@@ -470,7 +472,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
         itemBuilder: (context, index) {
           return Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: themeProvider.isDarkMode ? const Color(0xFF424242) : Colors.white,
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
@@ -551,7 +553,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(ThemeProvider themeProvider) {
     return Container(
       height: 400,
       child: Center(

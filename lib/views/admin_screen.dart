@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:akiflash/view_models/auth_view_model.dart';
 import 'package:akiflash/models/aki_product.dart';
+import 'package:akiflash/providers/theme_provider.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -56,14 +57,17 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return FutureBuilder<bool>(
       future: authViewModel.isAdmin(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            backgroundColor: Color(0xFFF8FAFF),
-            body: Center(
+          return Scaffold(
+            backgroundColor: themeProvider.isDarkMode
+                ? const Color(0xFF121212)
+                : const Color(0xFFF8FAFF),
+            body: const Center(
               child: CircularProgressIndicator(color: Color(0xFF1976D2)),
             ),
           );
@@ -71,7 +75,9 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
         
         if (!snapshot.data!) {
           return Scaffold(
-            backgroundColor: const Color(0xFFF8FAFF),
+            backgroundColor: themeProvider.isDarkMode
+                ? const Color(0xFF121212)
+                : const Color(0xFFF8FAFF),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -127,17 +133,21 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
         }
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFF),
+          backgroundColor: themeProvider.isDarkMode
+              ? const Color(0xFF121212)
+              : const Color(0xFFF8FAFF),
           body: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
               // Custom App Bar
               SliverAppBar(
-                expandedHeight: 170,
+                expandedHeight: 160,
                 floating: false,
                 pinned: true,
                 elevation: 0,
-                backgroundColor: const Color(0xFF1976D2),
+                backgroundColor: themeProvider.isDarkMode
+                    ? const Color(0xFF212121)
+                    : const Color(0xFF1976D2),
                 leading: Container(
                   margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -169,8 +179,12 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          const Color(0xFF1976D2),
-                          const Color(0xFF42A5F5),
+                          themeProvider.isDarkMode
+                              ? const Color(0xFF212121)
+                              : const Color(0xFF1976D2),
+                          themeProvider.isDarkMode
+                              ? const Color(0xFF424242)
+                              : const Color(0xFF42A5F5),
                         ],
                       ),
                     ),
@@ -195,7 +209,7 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
                                     size: 24,
                                   ),
                                 ),
-                                const SizedBox(width: 25),
+                                const SizedBox(width: 16),
                                 const Text(
                                   'Admin Panel',
                                   style: TextStyle(
@@ -223,14 +237,18 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
                 bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(50),
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                    decoration: BoxDecoration(
+                      color: themeProvider.isDarkMode
+                          ? const Color(0xFF303030)
+                          : Colors.white,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
                     ),
                     child: TabBar(
                       controller: _tabController,
                       labelColor: const Color(0xFF1976D2),
-                      unselectedLabelColor: Colors.grey[600],
+                      unselectedLabelColor: themeProvider.isDarkMode
+                          ? Colors.grey[400]
+                          : Colors.grey[600],
                       indicatorColor: const Color(0xFF1976D2),
                       indicatorWeight: 3,
                       labelStyle: const TextStyle(
@@ -264,7 +282,7 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
                     return Transform.translate(
                       offset: Offset(0, 30 * (1 - _slideAnimation.value)),
                       child: Opacity(
-                        opacity: _slideAnimation.value,
+                        opacity: _slideAnimation.value.clamp(0.0, 1.0),
                         child: TabBarView(
                           controller: _tabController,
                           children: [
@@ -285,6 +303,7 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
   }
 
   Widget _buildProductsTab() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -293,7 +312,9 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: themeProvider.isDarkMode
+                  ? const Color(0xFF303030)
+                  : Colors.white,
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
@@ -327,10 +348,12 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
                       const SizedBox(width: 12),
                       Text(
                         _selectedProductId == null ? 'Add New Product' : 'Edit Product',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
+                          color: themeProvider.isDarkMode
+                              ? Colors.white
+                              : const Color(0xFF1A1A1A),
                         ),
                       ),
                       const Spacer(),
@@ -470,7 +493,9 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: themeProvider.isDarkMode
+                  ? const Color(0xFF303030)
+                  : Colors.white,
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
@@ -498,12 +523,14 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Text(
+                    Text(
                       'All Products',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A1A1A),
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : const Color(0xFF1A1A1A),
                       ),
                     ),
                   ],
@@ -545,12 +572,15 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
   }
 
   Widget _buildOrdersTab() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: themeProvider.isDarkMode
+              ? const Color(0xFF303030)
+              : Colors.white,
           borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
@@ -634,6 +664,7 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
     int maxLines = 1,
     String? Function(String?)? validator,
   }) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
@@ -641,6 +672,9 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: TextStyle(
+          color: themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+        ),
         prefixIcon: Container(
           margin: const EdgeInsets.all(12),
           padding: const EdgeInsets.all(8),
@@ -663,17 +697,23 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
           borderSide: const BorderSide(color: Color(0xFF1976D2), width: 2),
         ),
         filled: true,
-        fillColor: Colors.grey[50],
+        fillColor: themeProvider.isDarkMode ? const Color(0xFF424242) : Colors.grey[50],
+      ),
+      style: TextStyle(
+        color: themeProvider.isDarkMode ? Colors.white : Colors.black,
       ),
     );
   }
 
   Widget _buildProductCard(AkiProduct product) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: themeProvider.isDarkMode
+            ? const Color(0xFF424242)
+            : Colors.grey[50],
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: Colors.grey[200]!),
       ),
@@ -707,10 +747,12 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
               children: [
                 Text(
                   product.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Color(0xFF1A1A1A),
+                    color: themeProvider.isDarkMode
+                        ? Colors.white
+                        : const Color(0xFF1A1A1A),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -756,6 +798,7 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
   }
 
   Widget _buildOrderCard(Map<String, dynamic> order, String orderId) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final statusColors = {
       'pending': Colors.orange,
       'processed': Colors.blue,
@@ -767,7 +810,9 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: themeProvider.isDarkMode
+            ? const Color(0xFF424242)
+            : Colors.grey[50],
         borderRadius: BorderRadius.circular(15),
         border: Border.all(color: Colors.grey[200]!),
       ),
@@ -783,10 +828,12 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
                   children: [
                     Text(
                       'Order #${orderId.substring(0, 8).toUpperCase()}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Color(0xFF1A1A1A),
+                        color: themeProvider.isDarkMode
+                            ? Colors.white
+                            : const Color(0xFF1A1A1A),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -890,13 +937,16 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
   }
 
   Widget _buildProductsLoading() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Column(
       children: List.generate(3, (index) {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.grey[50],
+            color: themeProvider.isDarkMode
+                ? const Color(0xFF424242)
+                : Colors.grey[50],
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: Colors.grey[200]!),
           ),
@@ -960,13 +1010,16 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
   }
 
   Widget _buildOrdersLoading() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Column(
       children: List.generate(3, (index) {
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.grey[50],
+            color: themeProvider.isDarkMode
+                ? const Color(0xFF424242)
+                : Colors.grey[50],
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: Colors.grey[200]!),
           ),
@@ -1034,6 +1087,7 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
   }
 
   Widget _buildEmptyProducts() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Center(
       child: Column(
         children: [
@@ -1072,6 +1126,7 @@ class _AdminScreenState extends State<AdminScreen> with TickerProviderStateMixin
   }
 
   Widget _buildEmptyOrders() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
