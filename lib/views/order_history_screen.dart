@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:akiflash/view_models/auth_view_model.dart';
+import 'package:geolocator/geolocator.dart';
 
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
@@ -12,7 +13,8 @@ class OrderHistoryScreen extends StatefulWidget {
   State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
 }
 
-class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProviderStateMixin {
+class _OrderHistoryScreenState extends State<OrderHistoryScreen>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
@@ -57,15 +59,13 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      const Color(0xFF1976D2),
-                      const Color(0xFF42A5F5),
-                    ],
+                    colors: [const Color(0xFF1976D2), const Color(0xFF42A5F5)],
                   ),
                 ),
                 child: SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
+
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -114,7 +114,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(25),
+                  ),
                 ),
                 child: TabBar(
                   controller: _tabController,
@@ -147,6 +149,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
                 return Transform.translate(
                   offset: Offset(0, 30 * (1 - _slideAnimation.value)),
                   child: Opacity(
+                    // opacityickel: true,
                     opacity: _slideAnimation.value.clamp(0.0, 1.0),
                     child: TabBarView(
                       controller: _tabController,
@@ -179,9 +182,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
           );
         }
         if (!userSnapshot.hasData) {
-          return const Center(
-            child: Text('Please log in to view orders'),
-          );
+          return const Center(child: Text('Please log in to view orders'));
         }
         final user = userSnapshot.data!;
 
@@ -197,7 +198,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
               return _buildLoadingList();
             }
             if (snapshot.hasError) {
-              print('Firestore Error: ${snapshot.error}'); // Log error untuk debugging
+              print(
+                'Firestore Error: ${snapshot.error}',
+              ); // Log error untuk debugging
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -210,10 +213,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
                     const SizedBox(height: 16),
                     Text(
                       'Error loading orders: ${snapshot.error}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -233,7 +233,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
 
                 // Pengecekan tipe data orderDate
                 if (order['orderDate'] is! Timestamp) {
-                  print('Invalid orderDate type for order $orderId: ${order['orderDate']}');
+                  print(
+                    'Invalid orderDate type for order $orderId: ${order['orderDate']}',
+                  );
                   return const SizedBox.shrink(); // Abaikan order dengan orderDate tidak valid
                 }
 
@@ -258,7 +260,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
     );
   }
 
-  Widget _buildOrderCard(Map<String, dynamic> order, String orderId, String status) {
+  Widget _buildOrderCard(
+    Map<String, dynamic> order,
+    String orderId,
+    String status,
+  ) {
     final statusColors = {
       'pending': Colors.orange,
       'processed': Colors.blue,
@@ -320,7 +326,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: statusColors[status]?.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(15),
@@ -385,8 +394,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
                         child: ElevatedButton.icon(
                           onPressed: () {
                             String? productId;
-                            if (order['items'] != null && (order['items'] as List).isNotEmpty) {
-                              productId = order['items'][0]['productId'] as String?;
+                            if (order['items'] != null &&
+                                (order['items'] as List).isNotEmpty) {
+                              productId =
+                                  order['items'][0]['productId'] as String?;
                             }
                             if (productId != null) {
                               _showReviewDialog(context, productId, orderId);
@@ -538,11 +549,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
               color: const Color(0xFF1976D2).withOpacity(0.1),
               borderRadius: BorderRadius.circular(50),
             ),
-            child: Icon(
-              emptyIcons[status],
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            child: Icon(emptyIcons[status], size: 64, color: Colors.grey[400]),
           ),
           const SizedBox(height: 24),
           Text(
@@ -556,10 +563,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
           const SizedBox(height: 8),
           Text(
             'Your orders will appear here',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
           ),
         ],
       ),
@@ -568,13 +572,27 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
 
   String _formatDate(DateTime date) {
     final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
-  void _showReviewDialog(BuildContext context, String productId, String orderId) {
+  void _showReviewDialog(
+    BuildContext context,
+    String productId,
+    String orderId,
+  ) {
     int rating = 0;
     final commentController = TextEditingController();
 
@@ -602,10 +620,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
               const SizedBox(width: 12),
               const Text(
                 'Add Review',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -616,10 +631,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
                 children: [
                   const Text(
                     'Rate this product',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -636,7 +648,9 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
                           child: Icon(
                             Icons.star_rounded,
                             size: 32,
-                            color: index < rating ? Colors.amber : Colors.grey[300],
+                            color: index < rating
+                                ? Colors.amber
+                                : Colors.grey[300],
                           ),
                         ),
                       );
@@ -654,7 +668,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
-                        borderSide: const BorderSide(color: Color(0xFF1976D2), width: 2),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF1976D2),
+                          width: 2,
+                        ),
                       ),
                     ),
                   ),
@@ -665,17 +682,24 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> with TickerProv
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
+              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
             ),
             ElevatedButton(
               onPressed: () async {
                 if (rating > 0 && commentController.text.isNotEmpty) {
                   try {
-                    await Provider.of<AuthViewModel>(context, listen: false)
-                        .addReview(productId, rating, commentController.text);
+                    final authViewModel = Provider.of<AuthViewModel>(
+                      context,
+                      listen: false,
+                    );
+                    final position = await authViewModel.getCurrentLocation();
+                    await authViewModel.addReview(
+                      productId,
+                      rating,
+                      commentController.text,
+                      position.latitude,
+                      position.longitude,
+                    );
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

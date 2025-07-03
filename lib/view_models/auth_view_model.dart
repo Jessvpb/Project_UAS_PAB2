@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:akiflash/services/auth_service.dart';
+import 'package:geolocator/geolocator.dart';
 
 class AuthViewModel extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -173,10 +174,10 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addReview(String productId, int rating, String comment) async {
+  Future<void> addReview(String productId, int rating, String comment, double latitude, double longitude) async {
     final user = _authService.getCurrentUser();
     if (user != null) {
-      await _authService.addReview(productId, rating, comment, user.uid);
+      await _authService.addReview(productId, rating, comment, user.uid, latitude, longitude);
       notifyListeners();
     }
   }
@@ -187,5 +188,9 @@ class AuthViewModel extends ChangeNotifier {
       return await _authService.getReviews(productId);
     }
     return [];
+  }
+
+  Future<Position> getCurrentLocation() async {
+    return await _authService.getCurrentLocation();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -154,12 +155,14 @@ class AuthService {
     await batch.commit();
   }
 
-  Future<void> addReview(String productId, int rating, String comment, String userId) async {
+  Future<void> addReview(String productId, int rating, String comment, String userId, double latitude, double longitude) async {
     await _firestore.collection('reviews').doc('$productId-$userId').set({
       'productId': productId,
       'userId': userId,
       'rating': rating,
       'comment': comment,
+      'latitude': latitude,
+      'longitude': longitude,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -170,5 +173,29 @@ class AuthService {
         .where('productId', isEqualTo: productId)
         .get();
     return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<Position> getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw Exception('Location permissions are denied.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception('Location permissions are permanently denied.');
+    }
+
+    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   }
 }

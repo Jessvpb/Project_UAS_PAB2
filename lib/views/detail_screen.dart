@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:akiflash/view_models/auth_view_model.dart';
 import 'package:akiflash/models/aki_product.dart';
 import 'package:akiflash/providers/theme_provider.dart';
+import 'package:geocoding/geocoding.dart';
 
 class DetailScreen extends StatefulWidget {
   final AkiProduct product;
@@ -33,16 +34,16 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _slideAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack),
     );
     _fabAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _fabAnimationController, curve: Curves.easeOut),
     );
-    
+
     _animationController.forward();
-    
+
     _scrollController.addListener(() {
       if (_scrollController.offset > 200 && !_showFab) {
         setState(() => _showFab = true);
@@ -529,6 +530,43 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
     );
   }
 
+  Future<String> _getAddressFromCoordinates(double? latitude, double? longitude) async {
+    try {
+      // Log the input coordinates for debugging
+      print('Attempting geocoding with latitude: $latitude, longitude: $longitude');
+
+      // Check for null or invalid coordinates
+      if (latitude == null || longitude == null) {
+        print('Error: Latitude or longitude is null');
+        return 'Coordinates not available';
+      }
+
+      // Validate coordinate ranges
+      if (latitude < -90.0 || latitude > 90.0 || longitude < -180.0 || longitude > 180.0) {
+        print('Error: Invalid coordinate range - lat: $latitude, long: $longitude');
+        return 'Invalid coordinates';
+      }
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        final placemark = placemarks.first;
+        print('Geocoding successful: ${placemark.toString()}');
+        return [
+          placemark.street,
+          placemark.subLocality,
+          placemark.locality,
+          placemark.administrativeArea,
+          placemark.country
+        ].where((element) => element != null && element.isNotEmpty).join(', ');
+      }
+      print('Error: No placemarks returned');
+      return 'Address not found';
+    } catch (e) {
+      print('Geocoding error details: $e'); // More detailed logging
+      return 'Failed to retrieve address (Error: $e)';
+    }
+  }
+
   Widget _buildReviewsSection(AuthViewModel authViewModel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -603,7 +641,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                 ),
               );
             }
-            
+
             final reviews = snapshot.data!;
             return Column(
               children: reviews.map((review) {
@@ -650,6 +688,27 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                                 fontSize: 14,
                                 color: Colors.grey[700],
                               ),
+                            ),
+                            const SizedBox(height: 4),
+                            FutureBuilder<String>(
+                              future: review['latitude'] != null && review['longitude'] != null
+                                  ? _getAddressFromCoordinates(
+                                      review['latitude'] as double?,
+                                      review['longitude'] as double?,
+                                    )
+                                  : Future.value('Address not available'),
+                              builder: (context, addressSnapshot) {
+                                return Text(
+                                  addressSnapshot.connectionState == ConnectionState.waiting
+                                      ? 'Loading address...'
+                                      : addressSnapshot.data ?? 'Address not available',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[500],
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),
