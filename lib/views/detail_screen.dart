@@ -14,7 +14,8 @@ class DetailScreen extends StatefulWidget {
   State<DetailScreen> createState() => _DetailScreenState();
 }
 
-class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMixin {
+class _DetailScreenState extends State<DetailScreen>
+    with TickerProviderStateMixin {
   int _quantity = 1;
   late AnimationController _animationController;
   late AnimationController _fabAnimationController;
@@ -95,7 +96,10 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                 ],
               ),
               child: IconButton(
-                icon: Icon(Icons.arrow_back_rounded, color: Theme.of(context).colorScheme.secondary),
+                icon: Icon(
+                  Icons.arrow_back_rounded,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
@@ -119,8 +123,12 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                     bool isFavorite = favoriteSnapshot.data ?? false;
                     return IconButton(
                       icon: Icon(
-                        isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                        color: isFavorite ? Colors.red : Theme.of(context).colorScheme.secondary,
+                        isFavorite
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        color: isFavorite
+                            ? Colors.red
+                            : Theme.of(context).colorScheme.secondary,
                       ),
                       onPressed: () async {
                         await authViewModel.toggleFavorite(widget.product.id);
@@ -167,13 +175,13 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
                                   Container(
-                                color: Colors.grey[200],
-                                child: Icon(
-                                  Icons.battery_unknown_rounded,
-                                  color: Colors.grey[400],
-                                  size: 80,
-                                ),
-                              ),
+                                    color: Colors.grey[200],
+                                    child: Icon(
+                                      Icons.battery_unknown_rounded,
+                                      color: Colors.grey[400],
+                                      size: 80,
+                                    ),
+                                  ),
                             ),
                           ),
                         ),
@@ -244,14 +252,17 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         widget.product.name,
                                         style: TextStyle(
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,
-                                          color: Theme.of(context).colorScheme.secondary,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
@@ -261,8 +272,12 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                                           vertical: 6,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF1976D2).withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(15),
+                                          color: const Color(
+                                            0xFF1976D2,
+                                          ).withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
                                         ),
                                         child: Text(
                                           widget.product.type,
@@ -383,10 +398,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                   icon: const Icon(Icons.shopping_cart_rounded),
                   label: const Text(
                     'Add to Cart',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1976D2),
@@ -429,16 +441,23 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
             children: [
               _buildQuantityButton(
                 Icons.remove_rounded,
-                () => setState(() => _quantity = _quantity > 1 ? _quantity - 1 : 1),
+                () => setState(
+                  () => _quantity = _quantity > 1 ? _quantity - 1 : 1,
+                ),
                 _quantity > 1,
               ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: const Color(0xFF1976D2).withOpacity(0.2)),
+                  border: Border.all(
+                    color: const Color(0xFF1976D2).withOpacity(0.2),
+                  ),
                 ),
                 child: Text(
                   _quantity.toString(),
@@ -461,7 +480,11 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
     );
   }
 
-  Widget _buildQuantityButton(IconData icon, VoidCallback onPressed, bool enabled) {
+  Widget _buildQuantityButton(
+    IconData icon,
+    VoidCallback onPressed,
+    bool enabled,
+  ) {
     return GestureDetector(
       onTap: enabled ? onPressed : null,
       child: Container(
@@ -530,40 +553,105 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
     );
   }
 
-  Future<String> _getAddressFromCoordinates(double? latitude, double? longitude) async {
+  Future<String> _getAddressFromCoordinates(
+    dynamic latitude,
+    dynamic longitude,
+  ) async {
     try {
-      // Log the input coordinates for debugging
-      print('Attempting geocoding with latitude: $latitude, longitude: $longitude');
+      // Convert to double if needed
+      double? lat;
+      double? lng;
+
+      if (latitude is String) {
+        lat = double.tryParse(latitude);
+      } else if (latitude is num) {
+        lat = latitude.toDouble();
+      }
+
+      if (longitude is String) {
+        lng = double.tryParse(longitude);
+      } else if (longitude is num) {
+        lng = longitude.toDouble();
+      }
+
+      // Log the converted coordinates for debugging
+      print('Converted coordinates - lat: $lat, lng: $lng');
 
       // Check for null or invalid coordinates
-      if (latitude == null || longitude == null) {
-        print('Error: Latitude or longitude is null');
-        return 'Coordinates not available';
+      if (lat == null || lng == null) {
+        print('Error: Could not convert coordinates to double');
+        return 'Invalid coordinates format';
       }
 
       // Validate coordinate ranges
-      if (latitude < -90.0 || latitude > 90.0 || longitude < -180.0 || longitude > 180.0) {
-        print('Error: Invalid coordinate range - lat: $latitude, long: $longitude');
-        return 'Invalid coordinates';
+      if (lat < -90.0 || lat > 90.0 || lng < -180.0 || lng > 180.0) {
+        print('Error: Invalid coordinate range - lat: $lat, lng: $lng');
+        return 'Invalid coordinate range';
       }
 
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      // Add timeout to prevent hanging
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        lat,
+        lng,
+      ).timeout(const Duration(seconds: 15));
+
       if (placemarks.isNotEmpty) {
         final placemark = placemarks.first;
-        print('Geocoding successful: ${placemark.toString()}');
-        return [
-          placemark.street,
-          placemark.subLocality,
-          placemark.locality,
-          placemark.administrativeArea,
-          placemark.country
-        ].where((element) => element != null && element.isNotEmpty).join(', ');
+        print('Geocoding successful, parsing placemark...');
+
+        // Build address string with null-safe operations
+        List<String> addressParts = [];
+
+        // Safely extract each field with null checks
+        String? street = placemark.street;
+        String? subLocality = placemark.subLocality;
+        String? locality = placemark.locality;
+        String? subAdministrativeArea = placemark.subAdministrativeArea;
+        String? administrativeArea = placemark.administrativeArea;
+        String? country = placemark.country;
+        String? postalCode = placemark.postalCode;
+
+        // Add non-null and non-empty parts
+        if (street != null && street.isNotEmpty) {
+          addressParts.add(street);
+        }
+        if (subLocality != null && subLocality.isNotEmpty) {
+          addressParts.add(subLocality);
+        }
+        if (locality != null && locality.isNotEmpty) {
+          addressParts.add(locality);
+        }
+        if (subAdministrativeArea != null && subAdministrativeArea.isNotEmpty) {
+          addressParts.add(subAdministrativeArea);
+        }
+        if (administrativeArea != null && administrativeArea.isNotEmpty) {
+          addressParts.add(administrativeArea);
+        }
+        if (country != null && country.isNotEmpty) {
+          addressParts.add(country);
+        }
+
+        // Log the successful parsing
+        print('Address parts found: $addressParts');
+
+        if (addressParts.isNotEmpty) {
+          return addressParts.join(', ');
+        } else {
+          // If no address parts found, try to use name or other fields
+          String? name = placemark.name;
+          if (name != null && name.isNotEmpty) {
+            return name;
+          }
+          return 'Address details not available';
+        }
       }
+
       print('Error: No placemarks returned');
       return 'Address not found';
     } catch (e) {
-      print('Geocoding error details: $e'); // More detailed logging
-      return 'Failed to retrieve address (Error: $e)';
+      print('Geocoding error details: $e');
+      print('Error type: ${e.runtimeType}');
+      return 'Failed to retrieve address';
     }
   }
 
@@ -605,7 +693,9 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                 child: CircularProgressIndicator(color: Color(0xFF1976D2)),
               );
             }
-            if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+            if (snapshot.hasError ||
+                !snapshot.hasData ||
+                snapshot.data!.isEmpty) {
               return Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -632,10 +722,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                     const SizedBox(height: 4),
                     Text(
                       'Be the first to review this product',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -674,7 +761,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Rating: ${review['rating']}/5',
+                              'Rating: ${review['rating'] ?? 'N/A'}/5',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
@@ -683,33 +770,15 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              review['comment'],
+                              review['comment'] ?? 'No comment',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey[700],
                               ),
                             ),
                             const SizedBox(height: 4),
-                            FutureBuilder<String>(
-                              future: review['latitude'] != null && review['longitude'] != null
-                                  ? _getAddressFromCoordinates(
-                                      review['latitude'] as double?,
-                                      review['longitude'] as double?,
-                                    )
-                                  : Future.value('Address not available'),
-                              builder: (context, addressSnapshot) {
-                                return Text(
-                                  addressSnapshot.connectionState == ConnectionState.waiting
-                                      ? 'Loading address...'
-                                      : addressSnapshot.data ?? 'Address not available',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[500],
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                );
-                              },
-                            ),
+                            // Use the conservative geocoding method
+                            _buildAddressWidget(review),
                           ],
                         ),
                       ),
@@ -721,6 +790,163 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
           },
         ),
       ],
+    );
+  }
+
+  Future<String> _getAddressFromCoordinatesConservative(
+    dynamic latitude,
+    dynamic longitude,
+  ) async {
+    try {
+      // Convert to double if needed
+      double? lat;
+      double? lng;
+
+      if (latitude is String) {
+        lat = double.tryParse(latitude);
+      } else if (latitude is num) {
+        lat = latitude.toDouble();
+      }
+
+      if (longitude is String) {
+        lng = double.tryParse(longitude);
+      } else if (longitude is num) {
+        lng = longitude.toDouble();
+      }
+
+      if (lat == null || lng == null) {
+        return 'Invalid coordinates';
+      }
+
+      if (lat < -90.0 || lat > 90.0 || lng < -180.0 || lng > 180.0) {
+        return 'Invalid coordinate range';
+      }
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        lat,
+        lng,
+      ).timeout(const Duration(seconds: 10));
+
+      if (placemarks.isEmpty) {
+        return 'No address found';
+      }
+
+      final placemark = placemarks.first;
+
+      // Very conservative approach - only use non-null fields
+      List<String> parts = [];
+
+      try {
+        if (placemark.locality != null &&
+            placemark.locality!.trim().isNotEmpty) {
+          parts.add(placemark.locality!.trim());
+        }
+      } catch (e) {
+        print('Error accessing locality: $e');
+      }
+
+      try {
+        if (placemark.administrativeArea != null &&
+            placemark.administrativeArea!.trim().isNotEmpty) {
+          parts.add(placemark.administrativeArea!.trim());
+        }
+      } catch (e) {
+        print('Error accessing administrativeArea: $e');
+      }
+
+      try {
+        if (placemark.country != null && placemark.country!.trim().isNotEmpty) {
+          parts.add(placemark.country!.trim());
+        }
+      } catch (e) {
+        print('Error accessing country: $e');
+      }
+
+      if (parts.isNotEmpty) {
+        return parts.join(', ');
+      }
+
+      // Last resort - just return coordinates
+      return 'Location: ${lat.toStringAsFixed(4)}, ${lng.toStringAsFixed(4)}';
+    } catch (e) {
+      print('Conservative geocoding error: $e');
+      return 'Address unavailable';
+    }
+  }
+
+  Widget _buildAddressWidget(Map<String, dynamic> review) {
+    // Check if coordinates exist and are valid
+    final lat = review['latitude'];
+    final lng = review['longitude'];
+
+    if (lat == null || lng == null) {
+      return Text(
+        'Address not available',
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey[500],
+          fontStyle: FontStyle.italic,
+        ),
+      );
+    }
+
+    return FutureBuilder<String>(
+      future: _getAddressFromCoordinatesConservative(lat, lng),
+      builder: (context, addressSnapshot) {
+        if (addressSnapshot.connectionState == ConnectionState.waiting) {
+          return Row(
+            children: [
+              SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.grey[400],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Loading address...',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          );
+        }
+
+        if (addressSnapshot.hasError) {
+          print('Address widget error: ${addressSnapshot.error}');
+          return Text(
+            'Address error',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.red[400],
+              fontStyle: FontStyle.italic,
+            ),
+          );
+        }
+
+        return Row(
+          children: [
+            Icon(Icons.location_on_outlined, size: 14, color: Colors.grey[500]),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                addressSnapshot.data ?? 'Address not available',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                  fontStyle: FontStyle.italic,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -737,9 +963,7 @@ class _DetailScreenState extends State<DetailScreen> with TickerProviderStateMix
         ),
         backgroundColor: const Color(0xFF1976D2),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
       ),
     );

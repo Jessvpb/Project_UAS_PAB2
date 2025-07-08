@@ -165,19 +165,42 @@ class AuthViewModel extends ChangeNotifier {
     return [];
   }
 
-  Future<void> placeOrder(String address, String paymentMethod, {required String phoneNumber, String? notes}) async {
+  Future<void> placeOrder(
+    String address,
+    String paymentMethod, {
+    required String phoneNumber,
+    String? notes,
+  }) async {
     final user = _authService.getCurrentUser();
     if (user != null) {
       final cartItems = await getCartItems();
-      await _authService.placeOrder(user.uid, cartItems, address, paymentMethod);
+      await _authService.placeOrder(
+        user.uid,
+        cartItems,
+        address,
+        paymentMethod,
+      );
       notifyListeners();
     }
   }
 
-  Future<void> addReview(String productId, int rating, String comment, double latitude, double longitude) async {
+  Future<void> addReview(
+    String productId,
+    int rating,
+    String comment,
+    double latitude,
+    double longitude,
+  ) async {
     final user = _authService.getCurrentUser();
     if (user != null) {
-      await _authService.addReview(productId, rating, comment, user.uid, latitude, longitude);
+      await _authService.addReview(
+        productId,
+        rating,
+        comment,
+        user.uid,
+        latitude,
+        longitude,
+      );
       notifyListeners();
     }
   }
@@ -192,5 +215,9 @@ class AuthViewModel extends ChangeNotifier {
 
   Future<Position> getCurrentLocation() async {
     return await _authService.getCurrentLocation();
+  }
+
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
   }
 }
